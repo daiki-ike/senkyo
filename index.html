@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja" prefix="og: http://ogp.me/ns#">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中学生でもわかる！未来を選ぶ選挙ガイド 2024-2025</title>
+    
+    <!-- ==========================================
+         OGP SETTINGS (SNSシェア用設定)
+         ========================================== -->
+    <meta property="og:title" content="中学生でもわかる！未来を選ぶ選挙ガイド" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://daiki-ike.github.io/senkyo/" />
+    <meta property="og:image" content="https://placehold.co/1200x630/orange/white/png?text=Election+Guide+2025" />
+    <!-- 👆 【重要】GitHubに 'ogp.png' という画像をアップロードしたら、上記を以下のように書き換えてください：
+         <meta property="og:image" content="https://daiki-ike.github.io/senkyo/ogp.png" /> 
+    -->
+    <meta property="og:description" content="難しい言葉なしで、各政党の主張をサクッと比較！あなたの気になるテーマは？" />
+    <meta property="og:site_name" content="未来を選ぶ選挙ガイド" />
+    <meta property="og:locale" content="ja_JP" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="中学生でもわかる！未来を選ぶ選挙ガイド" />
+    <meta name="twitter:description" content="3分でわかる政党比較。あなたの推しテーマで未来を選ぼう。" />
+    <meta name="twitter:image" content="https://placehold.co/1200x630/orange/white/png?text=Election+Guide+2025" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts: Noto Sans JP for readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #fdfbf7; /* Warm neutral background */
+            color: #4a4a4a;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-shadow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .active-tab {
+            background-color: #f97316; /* Orange-500 */
+            color: white;
+            font-weight: bold;
+        }
+        .inactive-tab {
+            background-color: #ffffff;
+            color: #4b5563;
+            border: 2px solid #e5e7eb;
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 300px; 
+            max-height: 400px;
+        }
+        /* Party Colors for borders/badges */
+        .border-ldp { border-left: 5px solid #d91f26; } /* Jiminto Red */
+        .border-cdp { border-left: 5px solid #004098; } /* Rikken Blue */
+        .border-ishin { border-left: 5px solid #a3cc29; } /* Ishin Green */
+        .border-komei { border-left: 5px solid #f55883; } /* Komei Pink */
+        .border-jcp { border-left: 5px solid #5a2e8c; } /* Kyosan Purple */
+        .border-dpp { border-left: 5px solid #fbbf16; } /* Kokumin Yellow */
+        .border-reiwa { border-left: 5px solid #e7007f; } /* Reiwa Pink */
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="text-2xl">🗳️</span>
+                <h1 class="text-lg md:text-xl font-bold text-gray-800">未来を選ぶ選挙ガイド</h1>
+            </div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="#themes" class="hover:text-orange-500">テーマで比べる</a>
+                <a href="#parties" class="hover:text-orange-500">政党図鑑</a>
+                <a href="#matrix" class="hover:text-orange-500">○×早見表</a>
+                <a href="#poll" class="hover:text-orange-500">みんなの声</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="bg-gradient-to-br from-orange-50 to-yellow-50 py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">私たちの未来、どうする？</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+                選挙は、これからの日本をどんな国にしたいか決める大切なイベントです。<br>
+                難しい言葉を使わずに、各政党が「何をしたいか」をまとめました。
+            </p>
+            <a href="#themes" class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105">
+                さっそく見てみる 👇
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 space-y-16">
+
+        <!-- SECTION 1: Theme Explorer -->
+        <section id="themes">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                    <span class="text-3xl">🔍</span> テーマで比べる
+                </h3>
+                <p class="text-gray-600 mt-2">気になるテーマを選ぶと、各政党の意見が出てきます。</p>
+            </div>
+
+            <!-- Theme Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8" id="theme-buttons">
+                <!-- Populated by JS -->
+            </div>
+
+            <!-- Dynamic Comparison Cards -->
+            <div id="theme-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Content injected by JS -->
+                <div class="col-span-full text-center py-10 text-gray-500">
+                    上のボタンからテーマを選んでね！
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Party Zukan (Directory) -->
+        <section id="parties" class="bg-white rounded-2xl p-6 md:p-10 shadow-sm border border-gray-100">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                    <span class="text-3xl">📖</span> 政党図鑑 (せいとうずかん)
+                </h3>
+                <p class="text-gray-600 mt-2">主な政党のキャッチコピーと特徴をチェック！</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="party-grid">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+
+        <!-- SECTION 3: Yes/No Matrix -->
+        <section id="matrix">
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                    <span class="text-3xl">⚖️</span> 3秒でわかる！○×早見表
+                </h3>
+                <p class="text-gray-600 mt-2">大きな問題について、賛成？反対？</p>
+            </div>
+
+            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                <table class="w-full min-w-[600px] text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-700">
+                            <th class="p-4 font-bold border-b">政党名</th>
+                            <th class="p-4 font-bold border-b text-center">憲法を変える？</th>
+                            <th class="p-4 font-bold border-b text-center">消費税を下げる？</th>
+                            <th class="p-4 font-bold border-b text-center">高校・大学無償化</th>
+                            <th class="p-4 font-bold border-b text-center">原発(げんぱつ)を使う？</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrix-body" class="text-sm">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-right text-gray-400 mt-2">※各党の公約や発言をもとにした大まかな傾向です。</p>
+        </section>
+
+        <!-- SECTION 4: Interactive Poll & Chart -->
+        <section id="poll" class="grid md:grid-cols-2 gap-8 items-start">
+            <!-- Poll Input -->
+            <div class="bg-orange-50 rounded-2xl p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">あなたの声を聞かせて！</h3>
+                <p class="text-gray-600 mb-6">あなたが一番大切だと思うテーマはどれですか？（クリックして投票！）</p>
+                <div class="space-y-3" id="poll-options">
+                    <button onclick="vote('economy')" class="w-full text-left bg-white hover:bg-orange-100 p-4 rounded-lg shadow-sm border border-orange-100 transition flex justify-between items-center group">
+                        <span>💴 お金と暮らし（物価・税金）</span>
+                        <span class="text-orange-400 opacity-0 group-hover:opacity-100">投票 →</span>
+                    </button>
+                    <button onclick="vote('education')" class="w-full text-left bg-white hover:bg-orange-100 p-4 rounded-lg shadow-sm border border-orange-100 transition flex justify-between items-center group">
+                        <span>🏫 学校と子育て（教育無償化）</span>
+                        <span class="text-orange-400 opacity-0 group-hover:opacity-100">投票 →</span>
+                    </button>
+                    <button onclick="vote('peace')" class="w-full text-left bg-white hover:bg-orange-100 p-4 rounded-lg shadow-sm border border-orange-100 transition flex justify-between items-center group">
+                        <span>🕊️ 平和と外交（防衛費など）</span>
+                        <span class="text-orange-400 opacity-0 group-hover:opacity-100">投票 →</span>
+                    </button>
+                    <button onclick="vote('future')" class="w-full text-left bg-white hover:bg-orange-100 p-4 rounded-lg shadow-sm border border-orange-100 transition flex justify-between items-center group">
+                        <span>🌏 未来と環境（エネルギー）</span>
+                        <span class="text-orange-400 opacity-0 group-hover:opacity-100">投票 →</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chart Display -->
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col items-center justify-center min-h-[400px]">
+                <h4 class="font-bold text-gray-700 mb-4">みんなの関心</h4>
+                
+                <!-- Chart Container -->
+                <div class="chart-container relative flex items-center justify-center">
+                    <canvas id="pollChart"></canvas>
+                    <!-- Zero State Overlay -->
+                    <div id="no-votes-msg" class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <span class="bg-white/80 px-4 py-2 rounded-full text-gray-500 font-bold shadow-sm backdrop-blur-sm">
+                            まだ投票がありません<br><span class="text-xs font-normal">一番乗りで投票しよう！</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-gray-400 mt-4 text-center">※このチャートは、ページ上のシミュレーションであり、実際の選挙結果ではありません。</p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="mb-2">🇯🇵 選挙に行こう！</p>
+            <p class="text-xs text-gray-400">
+                このサイトは中学生向けに政策をわかりやすく要約した学習用デモです。<br>
+                実際の投票の際は、各政党の公式ホームページや選挙公報を必ず確認してください。
+            </p>
+        </div>
+    </footer>
+
+    <!-- Chosen Palette: Warm Neutral & Orange (Energetic but friendly) -->
+    <!-- Application Structure Plan:
+         - Updated with Open Graph Protocol (OGP) tags for Facebook/SNS sharing.
+         - Poll Data initialized to ZERO. Added visual feedback for empty state.
+    -->
+    <!-- Visualization & Content Choices:
+         - Poll Chart: Now starts empty. On first click, removes the "No votes" overlay and shows the data.
+         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+
+    <script>
+        // --- DATASET: Party Info & Stances ---
+        const parties = [
+            {
+                id: 'ldp', name: '自民党', fullName: '自由民主党', color: '#d91f26', borderClass: 'border-ldp',
+                slogan: '日本の未来を切り拓く',
+                desc: '長く政権を担当している大きなグループ。経済を強くすることや、外交・防衛で国を守ることを重視。',
+                stances: {
+                    economy: '企業を元気にして賃金を上げる。物価高には給付金で対応。',
+                    education: '教育の質を上げる。奨学金を充実させる。',
+                    peace: '防衛力を強くして国を守る。憲法に自衛隊を明記したい。',
+                    future: '新しいエネルギー技術を開発。原発も安全確認して使う。',
+                    const_change: '賛成', tax_cut: '現状維持', free_edu: '段階的', nuke: '活用'
+                }
+            },
+            {
+                id: 'cdp', name: '立憲民主党', fullName: '立憲民主党', color: '#004098', borderClass: 'border-cdp',
+                slogan: '人へ 未来へ まっとうな政治へ',
+                desc: '今の政府のやり方を批判し、もっと一般の人や働く人を支援しようというグループ。',
+                stances: {
+                    economy: '働く人の権利を守る。一部のお金持ちへの課税を強化。',
+                    education: '大学まで授業料を無償（タダ）にするを目指す。給食費も無償化。',
+                    peace: '対話を重視する外交。急激な防衛費の増額には慎重。',
+                    future: '再生可能エネルギー（太陽光や風力）をもっと増やす。原発ゼロを目指す。',
+                    const_change: '慎重', tax_cut: '検討', free_edu: '推進', nuke: 'ゼロへ'
+                }
+            },
+            {
+                id: 'ishin', name: '日本維新の会', fullName: '日本維新の会', color: '#a3cc29', borderClass: 'border-ishin',
+                slogan: '日本大改革',
+                desc: '古いルールを壊して新しく作り直そうとするグループ。大阪を中心に力が強い。',
+                stances: {
+                    economy: '規制（きせい）をなくして新しいビジネスを作りやすくする。',
+                    education: '高校も大学も完全に無償化（タダ）にする「教育無償化」を最優先。',
+                    peace: '自分の国は自分で守る力をつける。核共有の議論もするべき。',
+                    future: '既得権益（昔からの利益）を壊し、地方を元気にする。',
+                    const_change: '積極的', tax_cut: '減税', free_edu: '完全無償', nuke: '是々非々'
+                }
+            },
+            {
+                id: 'komei', name: '公明党', fullName: '公明党', color: '#f55883', borderClass: 'border-komei',
+                slogan: '小さな声を、聴く力。',
+                desc: '福祉（ふくし）や平和を大切にするグループ。自民党と一緒に政権を持っている。',
+                stances: {
+                    economy: '電気代やガス代の補助など、家計の負担を減らす。',
+                    education: '「子育て応援トータルプラン」で、出産から教育まで支援。',
+                    peace: '平和外交を大切にする。核兵器のない世界を目指す。',
+                    future: '人に優しい社会を作る。防災（ぼうさい）対策を強化。',
+                    const_change: '加憲', tax_cut: '慎重', free_edu: '推進', nuke: '減らす'
+                }
+            },
+            {
+                id: 'dpp', name: '国民民主党', fullName: '国民民主党', color: '#fbbf16', borderClass: 'border-dpp',
+                slogan: '給料が上がる経済を',
+                desc: '「対決より解決」を掲げ、現実的な政策を提案するグループ。若者支援に熱心。',
+                stances: {
+                    economy: '「手取り」を増やす。ガソリン税を下げる。',
+                    education: '教育や科学技術にお金を使う「人への投資」を倍増。',
+                    peace: '自分の国を守るため、サイバー防御などを強化する。',
+                    future: '新しい技術で経済を成長させる。原発も活用して電気代を下げる。',
+                    const_change: '議論', tax_cut: '減税', free_edu: '推進', nuke: '活用'
+                }
+            },
+            {
+                id: 'jcp', name: '共産党', fullName: '日本共産党', color: '#5a2e8c', borderClass: 'border-jcp',
+                slogan: '国民が主人公',
+                desc: '企業より国民の生活を最優先する歴史あるグループ。アメリカとの軍事同盟に反対。',
+                stances: {
+                    economy: '大企業への課税を増やし、消費税を5%に下げる。長時間労働をなくす。',
+                    education: '高すぎる学費をすぐに半額にし、将来は無償に。',
+                    peace: '軍事力ではなく、話し合い（外交）で平和を作る。',
+                    future: '原発はすぐにゼロにする。石炭火力発電もなくす。',
+                    const_change: '反対', tax_cut: '5%へ', free_edu: '推進', nuke: '即時ゼロ'
+                }
+            },
+            {
+                id: 'reiwa', name: 'れいわ', fullName: 'れいわ新選組', color: '#e7007f', borderClass: 'border-reiwa',
+                slogan: '何があっても心配するな',
+                desc: '消費税廃止など、大胆な経済政策を訴えるグループ。',
+                stances: {
+                    economy: '消費税は廃止。季節ごとに10万円を配るなどして景気を良くする。',
+                    education: '奨学金の返済をチャラにする（徳政令）。',
+                    peace: 'アジア諸国と徹底的に平和外交を行う。',
+                    future: '国がもっとお金を出して、みんなの生活を底上げする。',
+                    const_change: '反対', tax_cut: '廃止', free_edu: '完全無償', nuke: '反対'
+                }
+            }
+        ];
+
+        // Theme Definitions
+        const themes = [
+            { id: 'economy', icon: '💴', label: 'お金・生活', question: '物価高や税金、どうしてほしい？' },
+            { id: 'education', icon: '🏫', label: '学校・子育て', question: '学費や学校のルール、どうなる？' },
+            { id: 'peace', icon: '🕊️', label: '平和・外交', question: '国を守る方法、どう考える？' },
+            { id: 'future', icon: '🌏', label: '未来・エネ', question: '環境問題や未来の技術は？' }
+        ];
+
+        // State
+        let currentTheme = 'economy';
+        
+        // --- 0. RESET: Initialize Poll with ZEROS ---
+        let pollData = {
+            labels: ['お金・生活', '学校・子育て', '平和・外交', '未来・環境'],
+            data: [0, 0, 0, 0] // Start at Zero
+        };
+        let myChart = null;
+        let hasVoted = false;
+
+        // --- FUNCTIONS ---
+
+        // 1. Initialize Theme Explorer
+        function initThemes() {
+            const btnContainer = document.getElementById('theme-buttons');
+            
+            themes.forEach(theme => {
+                const btn = document.createElement('button');
+                btn.className = `px-6 py-3 rounded-full text-sm md:text-base transition-all duration-200 shadow-sm ${theme.id === currentTheme ? 'active-tab' : 'inactive-tab hover:bg-gray-50'}`;
+                btn.innerHTML = `${theme.icon} ${theme.label}`;
+                btn.onclick = () => switchTheme(theme.id);
+                btnContainer.appendChild(btn);
+            });
+
+            renderThemeContent();
+        }
+
+        // 2. Switch Theme Logic
+        function switchTheme(themeId) {
+            currentTheme = themeId;
+            
+            // Update Buttons
+            const buttons = document.getElementById('theme-buttons').children;
+            Array.from(buttons).forEach((btn, index) => {
+                if (themes[index].id === themeId) {
+                    btn.className = 'px-6 py-3 rounded-full text-sm md:text-base transition-all duration-200 shadow-sm active-tab';
+                } else {
+                    btn.className = 'px-6 py-3 rounded-full text-sm md:text-base transition-all duration-200 shadow-sm inactive-tab hover:bg-gray-50';
+                }
+            });
+
+            renderThemeContent();
+        }
+
+        // 3. Render Comparison Cards
+        function renderThemeContent() {
+            const container = document.getElementById('theme-content');
+            container.innerHTML = '';
+
+            // Find current theme question
+            const themeObj = themes.find(t => t.id === currentTheme);
+            
+            // Intro for the section
+            const introDiv = document.createElement('div');
+            introDiv.className = 'col-span-full mb-2 p-4 bg-orange-50 rounded-lg border border-orange-100';
+            introDiv.innerHTML = `
+                <h4 class="font-bold text-orange-800 text-center text-lg">${themeObj.icon} ${themeObj.question}</h4>
+            `;
+            container.appendChild(introDiv);
+
+            // Create cards for each party
+            parties.forEach(party => {
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-xl p-5 card-shadow ${party.borderClass} flex flex-col`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <h5 class="font-bold text-lg text-gray-800">${party.name}</h5>
+                        <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500">${party.id.toUpperCase()}</span>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed flex-grow text-sm md:text-base">
+                        ${party.stances[currentTheme]}
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 4. Render Party Zukan
+        function renderPartyZukan() {
+            const grid = document.getElementById('party-grid');
+            parties.forEach(party => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 rounded-lg p-4 hover:bg-white border border-transparent hover:border-gray-200 transition-colors';
+                div.innerHTML = `
+                    <div class="h-2 w-full rounded-full mb-3" style="background-color: ${party.color}"></div>
+                    <h4 class="font-bold text-lg mb-1">${party.fullName}</h4>
+                    <p class="text-xs text-orange-600 font-bold mb-2">「${party.slogan}」</p>
+                    <p class="text-sm text-gray-600">${party.desc}</p>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // 5. Render Matrix
+        function renderMatrix() {
+            const tbody = document.getElementById('matrix-body');
+            parties.forEach(party => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50';
+                
+                // Helper for status colors
+                const getStatusColor = (status) => {
+                    if(status.includes('反対') || status.includes('廃止') || status.includes('ゼロ')) return 'text-blue-600 bg-blue-50';
+                    if(status.includes('賛成') || status.includes('積極') || status.includes('推進')) return 'text-red-600 bg-red-50';
+                    return 'text-gray-600 bg-gray-100';
+                };
+
+                const cellClass = "p-3 text-center";
+                const badgeClass = "inline-block px-2 py-1 rounded text-xs font-bold";
+
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-gray-800 border-l-4" style="border-color:${party.color}">${party.name}</td>
+                    <td class="${cellClass}"><span class="${badgeClass} ${getStatusColor(party.stances.const_change)}">${party.stances.const_change}</span></td>
+                    <td class="${cellClass}"><span class="${badgeClass} ${getStatusColor(party.stances.tax_cut)}">${party.stances.tax_cut}</span></td>
+                    <td class="${cellClass}"><span class="${badgeClass} ${getStatusColor(party.stances.free_edu)}">${party.stances.free_edu}</span></td>
+                    <td class="${cellClass}"><span class="${badgeClass} ${getStatusColor(party.stances.nuke)}">${party.stances.nuke}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 6. Interactive Poll (Chart.js)
+        function initChart() {
+            const ctx = document.getElementById('pollChart').getContext('2d');
+            
+            // Config for Chart.js
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: pollData.labels,
+                    datasets: [{
+                        data: pollData.data,
+                        backgroundColor: [
+                            '#fbbf24', // Yellow for Economy
+                            '#f472b6', // Pink for Education
+                            '#60a5fa', // Blue for Peace
+                            '#34d399'  // Green for Future
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const val = context.raw;
+                                    return val > 0 ? context.label + ': ' + val + '票' : '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Vote Function
+        function vote(category) {
+            // First time voting? Remove "No votes" message
+            if (!hasVoted) {
+                document.getElementById('no-votes-msg').style.display = 'none';
+                hasVoted = true;
+            }
+
+            let index = 0;
+            if(category === 'education') index = 1;
+            if(category === 'peace') index = 2;
+            if(category === 'future') index = 3;
+
+            // Increment selected
+            pollData.data[index] += 1;
+            
+            // Re-render chart
+            myChart.data.datasets[0].data = pollData.data;
+            myChart.update();
+
+            // Simple visual feedback
+            alert('投票を受け付けました！グラフが更新されました。');
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initThemes();
+            renderPartyZukan();
+            renderMatrix();
+            initChart();
+        });
+
+    </script>
+</body>
+</html>
